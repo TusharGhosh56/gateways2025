@@ -10,14 +10,13 @@ const ScrollVideo = () => {
   const imageRef = useRef(null);
   const [images, setImages] = useState([]);
 
-  const totalFrames = 80; // Number of images
+  const totalFrames = 192;
 
-  // Preload images
   useEffect(() => {
     const loadedImages = [];
     for (let i = 1; i <= totalFrames; i++) {
-      const frameNumber = String(i).padStart(3, "0"); // 001, 002...
-      loadedImages.push(`/frames/ezgif-frame-${frameNumber}.jpg`);
+      const frameNumber = String(i).padStart(4, "0"); 
+      loadedImages.push(`/frames/frame_${frameNumber}.jpg`);
     }
     setImages(loadedImages);
   }, []);
@@ -48,7 +47,6 @@ const ScrollVideo = () => {
       },
     });
 
-    // Refresh ScrollTrigger to ensure proper integration with Lenis
     ScrollTrigger.refresh();
 
     return () => {
@@ -62,7 +60,7 @@ const ScrollVideo = () => {
         ref={imageRef}
         src={images[0]}
         alt="scroll animation"
-        className="max-w-full max-h-full object-cover scale-130"
+        className="max-w-full max-h-full object-cover scale-150"
       />
     </div>
   );

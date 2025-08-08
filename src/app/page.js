@@ -1,18 +1,16 @@
 import ScrollVideo from "@/components/ScrollVideo";
+import ZoomIn from "@/components/zoomin";
 
 export default function Home() {
   return (
-    <div>
-
-      {/* Scroll video component */}
+    <>
       <ScrollVideo />
-      
-      {/* Additional content sections */}
+      <ZoomIn />
       <div className="h-screen bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-white">
         <div className="text-center max-w-2xl px-8">
           <h2 className="text-4xl font-bold mb-6">Buttery Smooth Scrolling</h2>
           <p className="text-lg leading-relaxed">
-            Experience the difference with Lenis smooth scroll. Every scroll interaction 
+            Experience the difference with Lenis smooth scroll. Every scroll interaction
             feels natural and responsive, creating an immersive browsing experience.
           </p>
         </div>
@@ -22,7 +20,7 @@ export default function Home() {
         <div className="text-center max-w-2xl px-8">
           <h2 className="text-4xl font-bold mb-6">Seamless Integration</h2>
           <p className="text-lg leading-relaxed">
-            Lenis works perfectly with GSAP ScrollTrigger, enabling smooth animations 
+            Lenis works perfectly with GSAP ScrollTrigger, enabling smooth animations
             that respond beautifully to scroll events.
           </p>
         </div>
@@ -32,11 +30,11 @@ export default function Home() {
         <div className="text-center max-w-2xl px-8">
           <h2 className="text-4xl font-bold mb-6">Performance Optimized</h2>
           <p className="text-lg leading-relaxed">
-            Built for performance with RAF (RequestAnimationFrame) and optimized 
+            Built for performance with RAF (RequestAnimationFrame) and optimized
             for both desktop and mobile experiences.
           </p>
         </div>
       </div>
-    </div>
+    </>
   );
 }
