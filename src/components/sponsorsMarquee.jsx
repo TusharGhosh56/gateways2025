@@ -1,12 +1,16 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
 
 const SponsorsMarquee = () => {
-  const [scrollDirection, setScrollDirection] = useState("right");
-  const lastScrollY = useRef(0);
-  const scrollTimeout = useRef(null);
-  const directionChangeDelay = useRef(null);
+  const marqueeRef = useRef(null);
+  const duplicateRef = useRef(null);
+  const tl = useRef(null);
 
   // Sample sponsor logos - you can replace these with actual sponsor images
   const sponsors = [
@@ -21,43 +25,24 @@ const SponsorsMarquee = () => {
   ];
 
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const scrollDiff = Math.abs(currentScrollY - lastScrollY.current);
+    if (!marqueeRef.current) return;
 
-      // Only change direction if scroll difference is significant (reduces quick jumps)
-      if (scrollDiff > 5) {
-        // Clear any existing timeout
-        if (scrollTimeout.current) {
-          clearTimeout(scrollTimeout.current);
-        }
+    const marqueeWidth = marqueeRef.current.offsetWidth;
 
-        // Clear any existing direction change delay
-        if (directionChangeDelay.current) {
-          clearTimeout(directionChangeDelay.current);
-        }
+    // Create simple left-to-right infinite loop animation
+    tl.current = gsap.timeline({ repeat: -1 });
 
-        const newDirection =
-          currentScrollY > lastScrollY.current ? "left" : "right";
-
-        // Add a small delay before changing direction to smooth out quick changes
-        directionChangeDelay.current = setTimeout(() => {
-          setScrollDirection(newDirection);
-        }, 150);
-
-        // Set a timeout to stop changing direction after scroll stops
-        scrollTimeout.current = setTimeout(() => {
-          lastScrollY.current = currentScrollY;
-        }, 100);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    // Start from left side and move right (creating left-to-right visual movement)
+    gsap.set([marqueeRef.current, duplicateRef.current], { x: -marqueeWidth });
+    tl.current.to([marqueeRef.current, duplicateRef.current], {
+      x: 0,
+      duration: 30, // Slower animation (increased from 20s to 30s)
+      ease: "none",
+    });
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-      if (directionChangeDelay.current)
-        clearTimeout(directionChangeDelay.current);
+      if (tl.current) {
+        tl.current.kill();
+      }
     };
   }, []);
 
@@ -99,71 +84,66 @@ const SponsorsMarquee = () => {
 
           {/* Marquee Track */}
           <div className="overflow-hidden py-8">
-            <div
-              className={`flex space-x-8 ${
-                scrollDirection === "left"
-                  ? "animate-marquee-left"
-                  : "animate-marquee-right"
-              }`}
-              style={{
-                width: "calc(200% + 2rem)",
-              }}
-            >
+            <div className="flex space-x-8" style={{ width: "200%" }}>
               {/* First set of sponsors */}
-              {sponsors.map((sponsor) => (
-                <div
-                  key={`first-${sponsor.id}`}
-                  className="group relative flex-shrink-0"
-                >
-                  <div className="relative h-24 w-32 border-2 border-[#D4FF00]/30 bg-black/80 backdrop-blur-sm transition-all duration-300 group-hover:border-[#D4FF00] group-hover:shadow-[0_0_20px_#D4FF00] md:h-28 md:w-40">
-                    {/* Corner Decorations */}
-                    <div className="absolute top-0 left-0 h-3 w-3 border-t-2 border-l-2 border-[#D4FF00]"></div>
-                    <div className="absolute top-0 right-0 h-3 w-3 border-t-2 border-r-2 border-[#D4FF00]"></div>
-                    <div className="absolute bottom-0 left-0 h-3 w-3 border-b-2 border-l-2 border-[#D4FF00]"></div>
-                    <div className="absolute right-0 bottom-0 h-3 w-3 border-r-2 border-b-2 border-[#D4FF00]"></div>
+              <div ref={marqueeRef} className="flex flex-shrink-0 space-x-8">
+                {sponsors.map((sponsor) => (
+                  <div
+                    key={`first-${sponsor.id}`}
+                    className="group relative flex-shrink-0"
+                  >
+                    <div className="relative h-24 w-32 border-2 border-[#D4FF00]/30 bg-black/80 backdrop-blur-sm transition-all duration-300 group-hover:border-[#D4FF00] group-hover:shadow-[0_0_8px_#D4FF00] md:h-28 md:w-40">
+                      {/* Corner Decorations */}
+                      <div className="absolute top-0 left-0 h-3 w-3 border-t-2 border-l-2 border-[#D4FF00]"></div>
+                      <div className="absolute top-0 right-0 h-3 w-3 border-t-2 border-r-2 border-[#D4FF00]"></div>
+                      <div className="absolute bottom-0 left-0 h-3 w-3 border-b-2 border-l-2 border-[#D4FF00]"></div>
+                      <div className="absolute right-0 bottom-0 h-3 w-3 border-r-2 border-b-2 border-[#D4FF00]"></div>
 
-                    {/* Logo */}
-                    <div className="absolute inset-2 flex items-center justify-center">
-                      <img
-                        src={sponsor.logo}
-                        alt={sponsor.name}
-                        className="max-h-full max-w-full object-contain opacity-70 transition-opacity duration-300 group-hover:opacity-100"
-                      />
+                      {/* Logo */}
+                      <div className="absolute inset-2 flex items-center justify-center">
+                        <img
+                          src={sponsor.logo}
+                          alt={sponsor.name}
+                          className="max-h-full max-w-full object-contain opacity-70 transition-opacity duration-300 group-hover:opacity-100"
+                        />
+                      </div>
+
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-[#D4FF00]/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
                     </div>
-
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-[#D4FF00]/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
 
               {/* Duplicate set for seamless loop */}
-              {sponsors.map((sponsor) => (
-                <div
-                  key={`second-${sponsor.id}`}
-                  className="group relative flex-shrink-0"
-                >
-                  <div className="relative h-24 w-32 border-2 border-[#D4FF00]/30 bg-black/80 backdrop-blur-sm transition-all duration-300 group-hover:border-[#D4FF00] group-hover:shadow-[0_0_20px_#D4FF00] md:h-28 md:w-40">
-                    {/* Corner Decorations */}
-                    <div className="absolute top-0 left-0 h-3 w-3 border-t-2 border-l-2 border-[#D4FF00]"></div>
-                    <div className="absolute top-0 right-0 h-3 w-3 border-t-2 border-r-2 border-[#D4FF00]"></div>
-                    <div className="absolute bottom-0 left-0 h-3 w-3 border-b-2 border-l-2 border-[#D4FF00]"></div>
-                    <div className="absolute right-0 bottom-0 h-3 w-3 border-r-2 border-b-2 border-[#D4FF00]"></div>
+              <div ref={duplicateRef} className="flex flex-shrink-0 space-x-8">
+                {sponsors.map((sponsor) => (
+                  <div
+                    key={`second-${sponsor.id}`}
+                    className="group relative flex-shrink-0"
+                  >
+                    <div className="relative h-24 w-32 border-2 border-[#D4FF00]/30 bg-black/80 backdrop-blur-sm transition-all duration-300 group-hover:border-[#D4FF00] group-hover:shadow-[0_0_8px_#D4FF00] md:h-28 md:w-40">
+                      {/* Corner Decorations */}
+                      <div className="absolute top-0 left-0 h-3 w-3 border-t-2 border-l-2 border-[#D4FF00]"></div>
+                      <div className="absolute top-0 right-0 h-3 w-3 border-t-2 border-r-2 border-[#D4FF00]"></div>
+                      <div className="absolute bottom-0 left-0 h-3 w-3 border-b-2 border-l-2 border-[#D4FF00]"></div>
+                      <div className="absolute right-0 bottom-0 h-3 w-3 border-r-2 border-b-2 border-[#D4FF00]"></div>
 
-                    {/* Logo */}
-                    <div className="absolute inset-2 flex items-center justify-center">
-                      <img
-                        src={sponsor.logo}
-                        alt={sponsor.name}
-                        className="max-h-full max-w-full object-contain opacity-70 transition-opacity duration-300 group-hover:opacity-100"
-                      />
+                      {/* Logo */}
+                      <div className="absolute inset-2 flex items-center justify-center">
+                        <img
+                          src={sponsor.logo}
+                          alt={sponsor.name}
+                          className="max-h-full max-w-full object-contain opacity-70 transition-opacity duration-300 group-hover:opacity-100"
+                        />
+                      </div>
+
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-[#D4FF00]/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
                     </div>
-
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-[#D4FF00]/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -173,10 +153,10 @@ const SponsorsMarquee = () => {
           <div className="inline-block border border-[#D4FF00]/30 bg-black/80 px-6 py-2">
             <div className="flex items-center space-x-4">
               <span className="font-mono text-sm text-[#D4FF00]">
-                &gt; SCROLL_DIRECTION:
+                &gt; MARQUEE_STATUS:
               </span>
               <span className="font-mono text-sm text-white uppercase">
-                {scrollDirection}
+                ACTIVE
               </span>
               <div className="h-2 w-2 animate-pulse bg-[#D4FF00]"></div>
             </div>
@@ -187,35 +167,6 @@ const SponsorsMarquee = () => {
       {/* Ambient Glow Effects */}
       <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-[#D4FF00]/5 blur-3xl"></div>
       <div className="absolute right-1/4 bottom-1/4 h-48 w-48 rounded-full bg-[#D4FF00]/10 blur-2xl"></div>
-
-      {/* CSS for animations */}
-      <style jsx>{`
-        @keyframes marquee-left {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-
-        @keyframes marquee-right {
-          0% {
-            transform: translateX(-50%);
-          }
-          100% {
-            transform: translateX(0);
-          }
-        }
-
-        .animate-marquee-left {
-          animation: marquee-left 30s linear infinite;
-        }
-
-        .animate-marquee-right {
-          animation: marquee-right 30s linear infinite;
-        }
-      `}</style>
     </section>
   );
 };

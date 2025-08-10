@@ -3,7 +3,7 @@ import TechOlympus from "@/components/techOlympus";
 import RegistrationProcessV2 from "@/components/registrationProcessV2";
 import SponsorsMarquee from "@/components/sponsorsMarquee";
 import Contact from "@/components/contact";
-import SimpleFooter from "@/components/simpleFooter";
+import Footer from "@/components/footer";
 
 export default function Home() {
   return (
@@ -13,7 +13,7 @@ export default function Home() {
       <RegistrationProcessV2 />
       <SponsorsMarquee />
       <Contact />
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }
